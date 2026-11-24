@@ -1,7 +1,8 @@
 # 🏨 THE EAST HOTEL – BUKU PANDUAN & DOKUMENTASI TEKNIS MASTER
  
 > **Framework:** Laravel 11 (PHP 8.2+)  
-> **Arsitektur:** REST API Backend + Server-Side Admin Panel (Blade Template)  
+> **Frontend Tamu (Guest-Facing):** React.js + Tailwind CSS + Lucide Icons (Tema Luxury Tropical Bali)  
+> **Arsitektur:** REST API Backend + React Guest Frontend + Server-Side Admin Panel (Blade Template)  
 > **Database:** Dual Engine Support (SQLite File-based & MySQL XAMPP Relational)  
 > **Autentikasi:** Laravel Session Guard (Web Panel) & Laravel Sanctum Bearer Token (REST API)
 

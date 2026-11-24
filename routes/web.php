@@ -11,8 +11,12 @@ use App\Http\Controllers\Admin\AdminPaymentController;
 use App\Http\Controllers\Admin\AdminUserController;
 use Illuminate\Support\Facades\Route;
 
-// ─── Halaman publik ──────────────────────────────────────────
-Route::get('/', fn () => redirect()->route('admin.login'));
+// ─── Halaman publik (Guest Facing React Frontend) ─────────────
+Route::get('/', fn () => view('app'))->name('home');
+Route::get('/rooms', fn () => view('app'))->name('rooms');
+Route::get('/booking', fn () => view('app'))->name('booking');
+Route::get('/lookup', fn () => view('app'))->name('lookup');
+Route::get('/experiences', fn () => view('app'))->name('experiences');
 
 // ─── Auth ────────────────────────────────────────────────────
 Route::prefix('admin')->name('admin.')->group(function () {
