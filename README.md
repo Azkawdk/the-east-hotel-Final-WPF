@@ -285,31 +285,7 @@ stateDiagram-v2
     Cancelled --> [*]
 ```
 
----
 
-### E. Pembersihan Bersih Data Terhapus (Cascade & Soft Deletes)
-
-#### 1. Penghapusan Reservasi Bersih (Cascade Delete):
-Tabel `reservation_details` dan `payments` memiliki integritas referensial foreign key `ON DELETE RESTRICT`. Saat tombol **Hapus** ditekan di admin panel:
-```php
-public function destroy(Reservation $reservation)
-{
-    DB::transaction(function () use ($reservation) {
-        $reservation->details()->delete(); // Hapus rincian pemesanan kamar
-        $reservation->payment()->delete(); // Hapus catatan transaksi pembayaran
-        $reservation->delete();            // Hapus data induk reservasi
-    });
-
-    return redirect()->route('admin.reservations.index')
-        ->with('success', "Reservasi {$reservation->code} berhasil dihapus.");
-}
-```
-
-#### 2. Eliminasi Kartu "Dihapus" pada Tipe Kamar:
-* Di masa awal, query menggunakan `RoomType::withTrashed()`, yang sengaja memuat kamar yang berstatus soft-delete (`deleted_at IS NOT NULL`).
-* Sekarang query telah disederhanakan menjadi `RoomType::with(...)`, sehingga data yang berstatus dihapus **otomatis tereliminasi dari query database** dan antarmuka web tetap bersih.
-
----
 
 
 
