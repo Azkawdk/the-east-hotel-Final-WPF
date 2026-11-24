@@ -40,14 +40,8 @@ DB_DATABASE=C:/the-east-hotel-api/database/database.sqlite
      Database ini merupakan **file biner mandiri** di dalam folder proyek Anda. SQLite dijalankan langsung oleh pustaka PHP internal tanpa memerlukan port jaringan, tanpa user, dan tanpa password.
    * **Database 2: MySQL XAMPP (Port 3306)**  
      Database ini berupa **server daemon terpisah** (`mysqld.exe`) yang dikelola oleh XAMPP Control Panel. phpMyAdmin (`http://localhost/phpmyadmin`) adalah aplikasi web PHP yang **hanya membaca dan menampilkan data dari server MySQL XAMPP**.
-2. **Bagaimana Laravel Memilih Database?**
-   * Laravel **tidak pernah menebak** database mana yang harus diisi. Laravel membaca variabel `DB_CONNECTION` pada file `.env`.
-   * Saat `DB_CONNECTION=sqlite`, seluruh perintah ORM (`Room::create()`, `Reservation::save()`, dsb.) akan mengalirkan query SQL ke file `database/database.sqlite`.
-   * Akibatnya: Data Anda **100% tersimpan aman**, namun berada di dalam file SQLite, sehingga wajar jika phpMyAdmin MySQL tidak menampilkannya karena phpMyAdmin tidak membaca file SQLite tersebut.
 
 ---
-
-
 
 
 ## 3. Diagram Relasi Database (Entity Relationship Diagram - ERD)
