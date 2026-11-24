@@ -1,13 +1,31 @@
 -- ============================================================
--- THE EAST HOTEL - Database SQL untuk phpMyAdmin / XAMPP
+-- THE EAST HOTEL - DATABASE BERSIH (TANPA DATA DUMMY)
 -- Database: the_east_hotel
--- Jalankan di phpMyAdmin atau via: mysql -u root -p < the_east_hotel.sql
 -- ============================================================
 
-SET FOREIGN_KEY_CHECKS = 0;
-DROP DATABASE IF EXISTS `the_east_hotel`;
-CREATE DATABASE `the_east_hotel` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+CREATE DATABASE IF NOT EXISTS `the_east_hotel` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 USE `the_east_hotel`;
+
+SET FOREIGN_KEY_CHECKS = 0;
+
+DROP TABLE IF EXISTS `payments`;
+DROP TABLE IF EXISTS `reservation_details`;
+DROP TABLE IF EXISTS `reservations`;
+DROP TABLE IF EXISTS `amenity_room_type`;
+DROP TABLE IF EXISTS `amenities`;
+DROP TABLE IF EXISTS `rooms`;
+DROP TABLE IF EXISTS `room_types`;
+DROP TABLE IF EXISTS `guests`;
+DROP TABLE IF EXISTS `personal_access_tokens`;
+DROP TABLE IF EXISTS `failed_jobs`;
+DROP TABLE IF EXISTS `job_batches`;
+DROP TABLE IF EXISTS `jobs`;
+DROP TABLE IF EXISTS `cache_locks`;
+DROP TABLE IF EXISTS `cache`;
+DROP TABLE IF EXISTS `sessions`;
+DROP TABLE IF EXISTS `password_reset_tokens`;
+DROP TABLE IF EXISTS `users`;
+DROP TABLE IF EXISTS `migrations`;
 
 -- ----------------------------
 -- Table: users
@@ -200,7 +218,7 @@ CREATE TABLE `amenities` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ----------------------------
--- Table: amenity_room_type (pivot)
+-- Table: amenity_room_type
 -- ----------------------------
 CREATE TABLE `amenity_room_type` (
   `amenity_id` BIGINT UNSIGNED NOT NULL,
@@ -254,6 +272,7 @@ CREATE TABLE `reservation_details` (
   `subtotal` DECIMAL(12,2) NOT NULL,
   `created_at` TIMESTAMP NULL DEFAULT NULL,
   `updated_at` TIMESTAMP NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
   KEY `reservation_details_room_id_index` (`room_id`),
   CONSTRAINT `reservation_details_reservation_id_foreign` FOREIGN KEY (`reservation_id`) REFERENCES `reservations` (`id`) ON DELETE RESTRICT,
   CONSTRAINT `reservation_details_room_id_foreign` FOREIGN KEY (`room_id`) REFERENCES `rooms` (`id`) ON DELETE RESTRICT,
@@ -283,7 +302,7 @@ CREATE TABLE `payments` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ----------------------------
--- Table: migrations (Laravel tracker)
+-- Table: migrations (Laravel migration tracker)
 -- ----------------------------
 CREATE TABLE `migrations` (
   `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -301,77 +320,11 @@ INSERT INTO `migrations` (`migration`, `batch`) VALUES
 ('2026_11_17_034042_create_personal_access_tokens_table', 1);
 
 -- ----------------------------
--- Data seed: Admin & Staff
--- Password: password123 (bcrypt)
+-- DATA AWAL HANYA AKUN ADMIN & STAF (UNTUK AKSES LOGIN CRUD)
+-- Password: password123
 -- ----------------------------
 INSERT INTO `users` (`name`, `email`, `password`, `role`, `is_active`, `created_at`, `updated_at`) VALUES
-('Admin The East', 'admin@theeasthotel.test', '$2y$12$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'admin', 1, NOW(), NOW()),
-('Staf Resepsionis', 'staf@theeasthotel.test', '$2y$12$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'staff', 1, NOW(), NOW());
-
--- ----------------------------
--- Data seed: Amenities
--- ----------------------------
-INSERT INTO `amenities` (`name`, `scope`, `description`, `created_at`, `updated_at`) VALUES
-('Kolam renang tanpa batas', 'hotel', 'Kolam di tepi tebing menghadap Samudra Hindia', NOW(), NOW()),
-('Spa & wellness', 'hotel', 'Pijat tradisional Bali dan ritual mandi bunga', NOW(), NOW()),
-('Restoran tepi laut', 'hotel', 'Masakan Bali dan Nusantara dengan bahan lokal', NOW(), NOW()),
-('Antar-jemput bandara', 'hotel', 'Tersedia dengan reservasi sebelumnya', NOW(), NOW()),
-('Taman tropis', 'hotel', 'Jalur jalan kaki di antara kebun frangipani', NOW(), NOW()),
-('Pendingin ruangan', 'room', NULL, NOW(), NOW()),
-('Wi-Fi cepat', 'room', NULL, NOW(), NOW()),
-('Balkon pribadi', 'room', NULL, NOW(), NOW()),
-('Kolam renang pribadi', 'room', NULL, NOW(), NOW()),
-('Bathtub outdoor', 'room', NULL, NOW(), NOW()),
-('Sarapan harian', 'room', NULL, NOW(), NOW()),
-('Dapur kecil', 'room', NULL, NOW(), NOW());
-
--- ----------------------------
--- Data seed: Room Types
--- ----------------------------
-INSERT INTO `room_types` (`name`, `slug`, `description`, `capacity`, `base_price`, `size_m2`, `bed_type`, `is_active`, `created_at`, `updated_at`) VALUES
-('Deluxe Garden', 'deluxe-garden', 'Kamar lapang dengan taman tropis pribadi, tempat tidur king, dan bathtub batu alam.', 2, 1450000.00, 42, 'King', 1, NOW(), NOW()),
-('Ocean View Suite', 'ocean-view-suite', 'Suite dengan ruang tamu terpisah dan balkon menghadap laut, tempat menyaksikan matahari terbit.', 3, 2350000.00, 68, 'King + sofa bed', 1, NOW(), NOW()),
-('Private Pool Villa', 'private-pool-villa', 'Vila satu kamar dengan kolam renang pribadi, paviliun bale, dan taman berpagar.', 3, 4800000.00, 110, 'King', 1, NOW(), NOW()),
-('Family Villa', 'family-villa', 'Vila dua kamar dengan dapur kecil dan kolam, cocok untuk keluarga atau rombongan kecil.', 5, 6200000.00, 180, '2 King', 1, NOW(), NOW());
-
--- ----------------------------
--- Data seed: amenity_room_type pivot
--- ----------------------------
--- Deluxe Garden (id=1): AC(6), WiFi(7), Balkon(8), Sarapan(11)
-INSERT INTO `amenity_room_type` (`amenity_id`, `room_type_id`) VALUES (6,1),(7,1),(8,1),(11,1);
--- Ocean View Suite (id=2): AC(6), WiFi(7), Balkon(8), Bathtub(10), Sarapan(11)
-INSERT INTO `amenity_room_type` (`amenity_id`, `room_type_id`) VALUES (6,2),(7,2),(8,2),(10,2),(11,2);
--- Private Pool Villa (id=3): AC(6), WiFi(7), Kolam(9), Bathtub(10), Sarapan(11)
-INSERT INTO `amenity_room_type` (`amenity_id`, `room_type_id`) VALUES (6,3),(7,3),(9,3),(10,3),(11,3);
--- Family Villa (id=4): AC(6), WiFi(7), Kolam(9), Dapur(12), Sarapan(11)
-INSERT INTO `amenity_room_type` (`amenity_id`, `room_type_id`) VALUES (6,4),(7,4),(9,4),(11,4),(12,4);
-
--- ----------------------------
--- Data seed: Rooms
--- ----------------------------
--- Deluxe Garden - Floor 1
-INSERT INTO `rooms` (`room_type_id`, `room_number`, `floor`, `status`, `created_at`, `updated_at`) VALUES
-(1,'101',1,'available',NOW(),NOW()),(1,'102',1,'available',NOW(),NOW()),
-(1,'103',1,'available',NOW(),NOW()),(1,'104',1,'available',NOW(),NOW()),
-(1,'105',1,'available',NOW(),NOW()),(1,'106',1,'available',NOW(),NOW());
--- Ocean View Suite - Floor 2
-INSERT INTO `rooms` (`room_type_id`, `room_number`, `floor`, `status`, `created_at`, `updated_at`) VALUES
-(2,'201',2,'available',NOW(),NOW()),(2,'202',2,'available',NOW(),NOW()),
-(2,'203',2,'available',NOW(),NOW()),(2,'204',2,'available',NOW(),NOW()),
-(2,'205',2,'available',NOW(),NOW());
--- Private Pool Villa - Floor 0 (ground)
-INSERT INTO `rooms` (`room_type_id`, `room_number`, `floor`, `status`, `created_at`, `updated_at`) VALUES
-(3,'V1',0,'available',NOW(),NOW()),(3,'V2',0,'available',NOW(),NOW()),
-(3,'V3',0,'available',NOW(),NOW()),(3,'V4',0,'available',NOW(),NOW());
--- Family Villa - Floor 0
-INSERT INTO `rooms` (`room_type_id`, `room_number`, `floor`, `status`, `created_at`, `updated_at`) VALUES
-(4,'F1',0,'available',NOW(),NOW()),(4,'F2',0,'available',NOW(),NOW()),
-(4,'F3',0,'available',NOW(),NOW());
+('Admin The East', 'admin@theeasthotel.test', '$2y$12$ZHHWk7uxjNz3XIW8.ELyx.Dps5ub37hefmk0XIS8J5JZMNEOakRQW', 'admin', 1, NOW(), NOW()),
+('Staf Resepsionis', 'staf@theeasthotel.test', '$2y$12$ZHHWk7uxjNz3XIW8.ELyx.Dps5ub37hefmk0XIS8J5JZMNEOakRQW', 'staff', 1, NOW(), NOW());
 
 SET FOREIGN_KEY_CHECKS = 1;
-
--- ============================================================
--- Selesai! Database the_east_hotel siap digunakan.
--- Login admin: admin@theeasthotel.test / password123
--- Login staf : staf@theeasthotel.test / password123
--- ============================================================

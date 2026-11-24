@@ -30,6 +30,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::post('reservations', [AdminReservationController::class, 'store'])->name('reservations.store');
         Route::get('reservations/{reservation}', [AdminReservationController::class, 'show'])->name('reservations.show');
         Route::patch('reservations/{reservation}/status', [AdminReservationController::class, 'updateStatus'])->name('reservations.status');
+        Route::delete('reservations/{reservation}', [AdminReservationController::class, 'destroy'])->name('reservations.destroy');
 
         // Pembayaran
         Route::get('payments', [AdminPaymentController::class, 'index'])->name('payments.index');

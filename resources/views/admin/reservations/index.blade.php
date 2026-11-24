@@ -65,9 +65,18 @@
             <td>@include('admin.partials.status-badge', ['status'=>$r->status, 'type'=>'reservation'])</td>
             <td>@include('admin.partials.status-badge', ['status'=>$r->payment?->status ?? 'pending', 'type'=>'payment'])</td>
             <td>
-              <a href="{{ route('admin.reservations.show', $r) }}" class="btn btn-sm btn-outline-primary">
-                <i class="bi bi-eye"></i>
-              </a>
+              <div class="d-flex gap-1">
+                <a href="{{ route('admin.reservations.show', $r) }}" class="btn btn-sm btn-outline-primary" title="Lihat Detail">
+                  <i class="bi bi-eye"></i>
+                </a>
+                <form method="POST" action="{{ route('admin.reservations.destroy', $r) }}"
+                  onsubmit="return confirm('Apakah Anda yakin ingin menghapus reservasi {{ $r->code }}?')">
+                  @csrf @method('DELETE')
+                  <button type="submit" class="btn btn-sm btn-outline-danger" title="Hapus Reservasi">
+                    <i class="bi bi-trash"></i>
+                  </button>
+                </form>
+              </div>
             </td>
           </tr>
           @empty

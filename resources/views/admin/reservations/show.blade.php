@@ -7,7 +7,16 @@
     <a href="{{ route('admin.reservations.index') }}" class="text-muted me-2"><i class="bi bi-arrow-left"></i></a>
     Reservasi <code class="text-primary">{{ $reservation->code }}</code>
   </h5>
-  @include('admin.partials.status-badge', ['status'=>$reservation->status, 'type'=>'reservation'])
+  <div class="d-flex align-items-center gap-2">
+    @include('admin.partials.status-badge', ['status'=>$reservation->status, 'type'=>'reservation'])
+    <form method="POST" action="{{ route('admin.reservations.destroy', $reservation) }}"
+      onsubmit="return confirm('Apakah Anda yakin ingin menghapus reservasi {{ $reservation->code }}?')">
+      @csrf @method('DELETE')
+      <button type="submit" class="btn btn-sm btn-outline-danger">
+        <i class="bi bi-trash me-1"></i>Hapus Reservasi
+      </button>
+    </form>
+  </div>
 </div>
 
 <div class="row g-3">

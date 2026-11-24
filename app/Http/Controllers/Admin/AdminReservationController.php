@@ -87,4 +87,17 @@ class AdminReservationController extends Controller
             return back()->withErrors($e->errors());
         }
     }
+
+    public function destroy(Reservation $reservation)
+    {
+        $code = $reservation->code;
+        \Illuminate\Support\Facades\DB::transaction(function () use ($reservation) {
+            $reservation->details()->delete();
+            $reservation->payment()->delete();
+            $reservation->delete();
+        });
+
+        return redirect()->route('admin.reservations.index')
+            ->with('success', "Reservasi {$code} berhasil dihapus.");
+    }
 }
