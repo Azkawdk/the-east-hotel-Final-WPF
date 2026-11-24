@@ -13,7 +13,7 @@ class AdminRoomTypeController extends Controller
 {
     public function index()
     {
-        $roomTypes = RoomType::withTrashed()->with('amenities')->withCount('rooms')->orderBy('base_price')->get();
+        $roomTypes = RoomType::with('amenities')->withCount('rooms')->orderBy('base_price')->get();
         return view('admin.room-types.index', compact('roomTypes'));
     }
 

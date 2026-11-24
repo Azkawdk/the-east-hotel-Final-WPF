@@ -14,7 +14,7 @@
 <div class="row g-3">
   @forelse($roomTypes as $t)
   <div class="col-md-6 col-xl-4">
-    <div class="card h-100 {{ $t->trashed() ? 'opacity-50' : '' }}">
+    <div class="card h-100">
       @if($t->image_url)
       <img src="{{ $t->image_url }}" class="card-img-top" style="height:160px;object-fit:cover">
       @else
@@ -25,9 +25,7 @@
       <div class="card-body">
         <div class="d-flex justify-content-between align-items-start mb-1">
           <h6 class="mb-0 fw-bold">{{ $t->name }}</h6>
-          @if($t->trashed())
-            <span class="badge bg-danger">Dihapus</span>
-          @elseif($t->is_active)
+          @if($t->is_active)
             <span class="badge bg-success">Aktif</span>
           @else
             <span class="badge bg-secondary">Nonaktif</span>
@@ -52,7 +50,7 @@
         </div>
         @endif
       </div>
-      @if(auth()->user()->role === 'admin' && !$t->trashed())
+      @if(auth()->user()->role === 'admin')
       <div class="card-footer bg-transparent d-flex gap-1">
         <a href="{{ route('admin.room-types.edit', $t) }}" class="btn btn-sm btn-outline-primary flex-fill">
           <i class="bi bi-pencil me-1"></i>Edit

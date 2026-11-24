@@ -12,8 +12,9 @@ $colors = [
   'refunded'   => ['bg'=>'info',    'label'=>'Refund'],
   // Room
   'available'      => ['bg'=>'success', 'label'=>'Tersedia'],
+  'occupied'       => ['bg'=>'danger',  'label'=>'Penuh'],
   'maintenance'    => ['bg'=>'warning', 'label'=>'Perbaikan'],
-  'out_of_service' => ['bg'=>'danger',  'label'=>'Tidak Aktif'],
+  'out_of_service' => ['bg'=>'secondary','label'=>'Tidak Aktif'],
 ];
 $c = $colors[$status] ?? ['bg'=>'secondary','label'=>$status];
 @endphp

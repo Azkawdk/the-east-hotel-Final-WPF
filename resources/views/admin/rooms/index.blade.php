@@ -25,9 +25,10 @@
       <div class="col-sm-3">
         <select name="status" class="form-select form-select-sm">
           <option value="">Semua Status</option>
-          @foreach($statuses as $s)
-            <option value="{{ $s }}" {{ request('status')===$s?'selected':'' }}>{{ ucfirst(str_replace('_',' ',$s)) }}</option>
-          @endforeach
+          <option value="available" {{ request('status')==='available'?'selected':'' }}>Tersedia (Kosong)</option>
+          <option value="occupied" {{ request('status')==='occupied'?'selected':'' }}>Penuh (Terisi)</option>
+          <option value="maintenance" {{ request('status')==='maintenance'?'selected':'' }}>Perbaikan</option>
+          <option value="out_of_service" {{ request('status')==='out_of_service'?'selected':'' }}>Tidak Aktif</option>
         </select>
       </div>
       <div class="col-sm-2 d-flex gap-1">
@@ -55,7 +56,23 @@
             <td class="fw-bold">{{ $room->room_number }}</td>
             <td>{{ $room->roomType?->name }}</td>
             <td class="text-center">{{ $room->floor == 0 ? 'GF' : $room->floor }}</td>
-            <td>@include('admin.partials.status-badge', ['status'=>$room->status, 'type'=>'room'])</td>
+            <td>
+              @php
+                $activeRes = $activeReservations->get($room->id);
+              @endphp
+              @if($room->status === 'maintenance')
+                <span class="badge bg-warning badge-status">Perbaikan</span>
+              @elseif($room->status === 'out_of_service')
+                <span class="badge bg-secondary badge-status">Tidak Aktif</span>
+              @elseif($activeRes)
+                <span class="badge bg-danger badge-status">Penuh</span>
+                <a href="{{ route('admin.reservations.show', $activeRes->reservation_id) }}" class="d-block text-muted text-decoration-none mt-1" style="font-size:.72rem" title="Lihat Reservasi">
+                  <i class="bi bi-person-fill text-primary"></i> {{ $activeRes->guest_name }} ({{ $activeRes->code }})
+                </a>
+              @else
+                <span class="badge bg-success badge-status">Tersedia</span>
+              @endif
+            </td>
             <td class="text-muted" style="font-size:.8rem">{{ $room->notes ?? '–' }}</td>
             @if(auth()->user()->role === 'admin')
             <td>

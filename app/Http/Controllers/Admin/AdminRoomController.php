@@ -14,19 +14,42 @@ class AdminRoomController extends Controller
 {
     public function index(Request $request)
     {
+        $today = today()->toDateString();
+
+        // Cari kamar yang sedang aktif terisi/terpesan hari ini
+        $activeReservations = \Illuminate\Support\Facades\DB::table('reservation_details as d')
+            ->join('reservations as r', 'r.id', '=', 'd.reservation_id')
+            ->join('guests as g', 'g.id', '=', 'r.guest_id')
+            ->whereIn('r.status', ['confirmed', 'checked_in'])
+            ->where('r.check_in', '<=', $today)
+            ->where('r.check_out', '>', $today)
+            ->select('d.room_id', 'r.id as reservation_id', 'r.code', 'r.status as res_status', 'g.full_name as guest_name')
+            ->get()
+            ->keyBy('room_id');
+
+        $bookedRoomIds = $activeReservations->keys()->all();
+
         $q = Room::with('roomType')->orderBy('room_number');
+
         if ($request->filled('room_type_id')) {
             $q->where('room_type_id', $request->room_type_id);
         }
+
         if ($request->filled('status')) {
-            $q->where('status', $request->status);
+            if ($request->status === 'occupied') {
+                $q->whereIn('id', $bookedRoomIds);
+            } elseif ($request->status === 'available') {
+                $q->where('status', 'available')->whereNotIn('id', $bookedRoomIds);
+            } else {
+                $q->where('status', $request->status);
+            }
         }
 
         $rooms     = $q->paginate(20)->withQueryString();
         $roomTypes = RoomType::orderBy('name')->get();
-        $statuses  = ['available', 'maintenance', 'out_of_service'];
+        $statuses  = ['available', 'occupied', 'maintenance', 'out_of_service'];
 
-        return view('admin.rooms.index', compact('rooms', 'roomTypes', 'statuses'));
+        return view('admin.rooms.index', compact('rooms', 'roomTypes', 'statuses', 'activeReservations'));
     }
 
     public function create()
