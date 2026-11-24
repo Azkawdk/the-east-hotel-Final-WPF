@@ -1,6 +1,5 @@
 # 🏨 THE EAST HOTEL – BUKU PANDUAN & DOKUMENTASI TEKNIS MASTER
-
-> **Status Sistem:** Siap Produksi (Production Ready)  
+ 
 > **Framework:** Laravel 11 (PHP 8.2+)  
 > **Arsitektur:** REST API Backend + Server-Side Admin Panel (Blade Template)  
 > **Database:** Dual Engine Support (SQLite File-based & MySQL XAMPP Relational)  
@@ -35,7 +34,7 @@ DB_CONNECTION=sqlite
 DB_DATABASE=C:/the-east-hotel-api/database/database.sqlite
 ```
 
-1. **Dua Mesin Database Berjalan Terpisah di Komputer Anda:**
+**Dua Mesin Database Berjalan Terpisah di Komputer Anda:**
    * **Database 1: SQLite (`database/database.sqlite`)**  
      Database ini merupakan **file biner mandiri** di dalam folder proyek Anda. SQLite dijalankan langsung oleh pustaka PHP internal tanpa memerlukan port jaringan, tanpa user, dan tanpa password.
    * **Database 2: MySQL XAMPP (Port 3306)**  
