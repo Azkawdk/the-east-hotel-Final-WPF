@@ -8,23 +8,7 @@
 
 ---
 
-## 📑 DAFTAR ISI UTAMA
-1. [Kredensial Akun & Hak Akses (RBAC)](#1-kredensial-akun--hak-akses-rbac)
-2. [Investigasi Mendalam: Kenapa Data Web Tidak Masuk ke phpMyAdmin MySQL?](#2-investigasi-mendalam-kenapa-data-web-tidak-masuk-ke-phpmyadmin-mysql)
-3. [Panduan Konfigurasi & Migrasi Database (SQLite vs MySQL)](#3-panduan-konfigurasi--migrasi-database-sqlite-vs-mysql)
-4. [Diagram Relasi Database (Entity Relationship Diagram - ERD)](#4-diagram-relasi-database-entity-relationship-diagram---erd)
-5. [Kamus Data Lengkap (Data Dictionary & Schema)](#5-kamus-data-lengkap-data-dictionary--schema)
-6. [Arsitektur Request Lifecycle & Keamanan](#6-arsitektur-request-lifecycle--keamanan)
-7. [Bedah Logika Bisnis & Mesin CRUD Otomatis](#7-bedah-logika-bisnis--mesin-crud-otomatis)
-   - [A. Logika Sinkronisasi Status Kamar Dinamis (Tersedia vs Penuh)](#a-logika-sinkronisasi-status-kamar-dinamis-tersedia-vs-penuh)
-   - [B. Mesin Anti Double-Booking & Kunci Konkurensi](#b-mesin-anti-double-booking--kunci-konkurensi)
-   - [C. Rumus Finansial Perhitungan Tarif (Service & PPN)](#c-rumus-finansial-perhitungan-tarif-service--ppn)
-   - [D. Diagram Transisi Status Reservasi & Pembayaran (State Machine)](#d-diagram-transisi-status-reservasi--pembayaran-state-machine)
-   - [E. Pembersihan Bersih Data Terhapus (Cascade & Soft Deletes)](#e-pembersihan-bersih-data-terhapus-cascade--soft-deletes)
-8. [Katalog Endpoint RESTful API (v1)](#8-katalog-endpoint-restful-api-v1)
-9. [Matriks Pemecahan Masalah (Troubleshooting Matrix)](#9-matriks-pemecahan-masalah-troubleshooting-matrix)
 
----
 
 ## 1. Kredensial Akun & Hak Akses (RBAC)
 
@@ -40,12 +24,12 @@ Aplikasi menerapkan sistem otentikasi berbasis peran (*Role-Based Access Control
 
 ---
 
-## 2. Investigasi Mendalam: Kenapa Data Web Tidak Masuk ke phpMyAdmin MySQL?
+## 2. DATABASE
 
-Banyak developer pemula bingung ketika data yang diinput dari web bisa tersimpan rapi, namun saat membuka phpMyAdmin MySQL, tabelnya tetap kosong.
+
 
 ### 🔬 Akar Masalah Teknis:
-Kunci utama terletak pada file **`.env`** di baris 23–24:
+
 ```dotenv
 DB_CONNECTION=sqlite
 DB_DATABASE=C:/the-east-hotel-api/database/database.sqlite
@@ -63,43 +47,10 @@ DB_DATABASE=C:/the-east-hotel-api/database/database.sqlite
 
 ---
 
-## 3. Panduan Konfigurasi & Migrasi Database (SQLite vs MySQL)
 
-Anda bebas memilih database mana yang ingin digunakan:
 
-### Cara A: Menghubungkan Web ke phpMyAdmin MySQL XAMPP
-Jika Anda ingin seluruh data web tersinkron langsung ke tabel phpMyAdmin:
-1. Pastikan modul **Apache** dan **MySQL** di **XAMPP Control Panel** berstatus **Running (Hijau)**.
-2. Buka file `.env`, sesuaikan nilai konfigurasi:
-   ```dotenv
-   DB_CONNECTION=mysql
-   DB_HOST=127.0.0.1
-   DB_PORT=3306
-   DB_DATABASE=the_east_hotel
-   DB_USERNAME=root
-   DB_PASSWORD=
-   ```
-3. Bersihkan cache konfigurasi Laravel:
-   ```powershell
-   php artisan config:clear
-   ```
-4. Jalankan migrasi dan seeder awal:
-   ```powershell
-   php artisan migrate:fresh --seed
-   ```
-   *(Atau impor file `public/the_east_hotel.sql` langsung melalui tab Import di phpMyAdmin).*
 
-### Cara B: Menggunakan SQLite (Portabel & Cepat Tanpa XAMPP)
-Jika tidak ingin repot menyalakan XAMPP setiap saat:
-```dotenv
-DB_CONNECTION=sqlite
-DB_DATABASE=C:/the-east-hotel-api/database/database.sqlite
-```
-Setelah mengubah `.env`, selalu jalankan `php artisan config:clear`.
-
----
-
-## 4. Diagram Relasi Database (Entity Relationship Diagram - ERD)
+## 3. Diagram Relasi Database (Entity Relationship Diagram - ERD)
 
 Aplikasi dibangun di atas skema relasional terstandarisasi untuk mencegah redundansi dan anomali data:
 
@@ -201,56 +152,10 @@ erDiagram
     }
 ```
 
----
 
-## 5. Kamus Data Lengkap (Data Dictionary & Schema)
 
-### 1. Tabel `users`
-Menyimpan kredensial autentikasi staf dan administrator hotel.
-* `id` (BIGINT UNSIGNED, PK, Auto Increment)
-* `name` (VARCHAR 255): Nama lengkap pengguna.
-* `email` (VARCHAR 255, Unique): Alamat email untuk login.
-* `password` (VARCHAR 255): Hash Bcrypt kata sandi pengguna.
-* `role` (ENUM: `'admin'`, `'staff'`): Tingkat wewenang akun.
-* `is_active` (BOOLEAN): Status keaktifan akun (1 = aktif, 0 = dinonaktifkan).
 
-### 2. Tabel `room_types`
-Menyimpan kategori/varian tipe kamar hotel.
-* `id` (BIGINT UNSIGNED, PK, Auto Increment)
-* `name` (VARCHAR 100): Nama tipe kamar (contoh: *Deluxe Garden*).
-* `slug` (VARCHAR 120, Unique): Slug ramah URL (contoh: *deluxe-garden*).
-* `capacity` (TINYINT UNSIGNED): Kapasitas maksimal tamu dewasa.
-* `base_price` (DECIMAL 12,2): Tarif dasar sewa per malam (dalam Rupiah).
-* `size_m2` (SMALLINT UNSIGNED, Nullable): Luas kamar dalam meter persegi.
-* `bed_type` (VARCHAR 60): Konfigurasi ranjang (contoh: *1 King Bed*).
-* `deleted_at` (TIMESTAMP, Nullable): Penanda waktu soft-delete.
-
-### 3. Tabel `rooms`
-Menyimpan unit kamar fisik nyata di properti hotel.
-* `id` (BIGINT UNSIGNED, PK, Auto Increment)
-* `room_type_id` (BIGINT UNSIGNED, FK -> `room_types.id`): Tipe varian kamar.
-* `room_number` (VARCHAR 10, Unique): Nomor fisik pintu kamar (contoh: *101*, *V1*).
-* `floor` (TINYINT UNSIGNED): Nomor lantai (0 = Ground Floor / Lantai Dasar).
-* `status` (ENUM: `'available'`, `'maintenance'`, `'out_of_service'`): Status fisik kamar.
-
-### 4. Tabel `reservations`
-Menyimpan data transaksi pemesanan hotel.
-* `id` (BIGINT UNSIGNED, PK, Auto Increment)
-* `code` (VARCHAR 12, Unique): Kode alfanumerik unik reservasi (format: `TEH-XXXXXX`).
-* `guest_id` (BIGINT UNSIGNED, FK -> `guests.id`): Data profil tamu penyewa.
-* `check_in` (DATE): Tanggal mulai menginap (pukul 14:00 waktu lokal).
-* `check_out` (DATE): Tanggal keluar (pukul 12:00 waktu lokal).
-* `nights` (SMALLINT UNSIGNED): Durasi jumlah malam menginap.
-* `subtotal` (DECIMAL 12,2): Total biaya sewa kamar murni.
-* `service_amount` (DECIMAL 12,2): Biaya layanan hotel (10% dari subtotal).
-* `tax_amount` (DECIMAL 12,2): Pajak pertambahan nilai (11% dari subtotal + layanan).
-* `total_amount` (DECIMAL 12,2): Total tagihan akhir wajib bayar.
-* `status` (ENUM: `'pending'`, `'confirmed'`, `'checked_in'`, `'checked_out'`, `'cancelled'`).
-* `expires_at` (TIMESTAMP, Nullable): Batas waktu toleransi pembayaran pending.
-
----
-
-## 6. Arsitektur Request Lifecycle & Keamanan
+## 4. Arsitektur Request Lifecycle & Keamanan
 
 Setiap request HTTP yang dikirimkan oleh klien melewati lapisan filter keamanan bertingkat:
 
@@ -286,7 +191,7 @@ Setiap request HTTP yang dikirimkan oleh klien melewati lapisan filter keamanan 
 
 ---
 
-## 7. Bedah Logika Bisnis & Mesin CRUD Otomatis
+## 5. Bedah Logika Bisnis & Mesin CRUD Otomatis
 
 ### A. Logika Sinkronisasi Status Kamar Dinamis (Tersedia vs Penuh)
 Di hotel operasional nyata, kamar tidak boleh hanya mengandalkan status statis dari tabel `rooms`. Jika hari ini ada tamu menginap, kamar wajib otomatis ditandai **Penuh**, dan saat tamu check-out kembali menjadi **Tersedia**.
@@ -406,40 +311,5 @@ public function destroy(Reservation $reservation)
 
 ---
 
-## 8. Katalog Endpoint RESTful API (v1)
 
-Aplikasi menyediakan API standar industri untuk diintegrasikan dengan aplikasi mobile atau sistem eksternal:
 
-### Endpoint Publik (Tanpa Token):
-* `GET  /api/v1/room-types` : Mengambil seluruh varian tipe kamar beserta fasilitas dan harga.
-* `GET  /api/v1/room-types/{slug}` : Mengambil detail tipe kamar tertentu beserta ketersediaannya.
-* `GET  /api/v1/amenities` : Daftar fasilitas umum hotel dan fasilitas kamar.
-* `POST /api/v1/reservations` : Tamu membuat reservasi baru mandiri secara online.
-* `GET  /api/v1/reservations/lookup?code=TEH-XXXXXX` : Tamu melacak status reservasi menggunakan kode booking.
-* `POST /api/v1/reservations/{code}/payments` : Simulasi penyelesaian pembayaran online.
-* `POST /api/v1/auth/login` : Login untuk mendapatkan Bearer Token Sanctum.
-
-### Endpoint Terproteksi (Header: `Authorization: Bearer <TOKEN>`):
-* `GET   /api/v1/auth/me` : Informasi profil pengguna yang sedang login.
-* `POST  /api/v1/auth/logout` : Revokasi token sesi aktif.
-* `GET   /api/v1/admin/dashboard` : Statistik okupansi, pendapatan bulanan, dan jadwal check-in/out hari ini.
-* `GET   /api/v1/admin/reservations` : Daftar seluruh reservasi dengan filter pencarian tanggal dan status.
-* `PATCH /api/v1/admin/reservations/{id}/status` : Memperbarui status reservasi (*checked_in*, *checked_out*, dsb.).
-* `PATCH /api/v1/admin/payments/{id}` : Konfirmasi penerimaan pembayaran manual.
-* `apiResource /api/v1/admin/room-types` : Endpoint CRUD master tipe kamar (khusus Admin).
-* `apiResource /api/v1/admin/rooms` : Endpoint CRUD nomor unit fisik kamar (khusus Admin).
-
----
-
-## 9. Matriks Pemecahan Masalah (Troubleshooting Matrix)
-
-| Gejala Masalah | Penyebab Teknis | Solusi Definitif |
-|---|---|---|
-| **Data tidak muncul di phpMyAdmin** | File `.env` masih mengarah ke driver `sqlite`. | Ubah `.env` ke `DB_CONNECTION=mysql`, lalu jalankan `php artisan config:clear`. |
-| **SQLSTATE[HY000] [2002] Socket forbidden / refused** | Layanan MySQL di XAMPP belum aktif atau port 3306 diblokir. | Buka XAMPP Control Panel dan klik tombol **Start** pada modul **MySQL**. |
-| **Error 419 (Page Expired)** | Token CSRF pada form sesi telah kedaluwarsa. | Refresh halaman formulir web, pastikan `@csrf` ada di dalam tag `<form>`, dan pastikan izin folder `storage/framework/sessions` dapat ditulisi. |
-| **Integrity constraint violation: 19 FOREIGN KEY** | Menghapus data induk yang masih memiliki anak data bertaut. | Gunakan penghapusan berantai di dalam `DB::transaction()` seperti yang telah diimplementasikan pada `AdminReservationController::destroy()`. |
-| **Perubahan kode Blade tidak terlihat di browser** | Cache view PHP yang telah dikompilasi masih tersimpan di storage. | Jalankan perintah terminal: `php artisan view:clear`. |
-
----
-*Dokumentasi ini dirancang sebagai standar acuan rekayasa perangkat lunak tertinggi untuk The East Hotel Management System.*
