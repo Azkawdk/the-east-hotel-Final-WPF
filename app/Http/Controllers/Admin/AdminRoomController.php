@@ -17,10 +17,11 @@ class AdminRoomController extends Controller
         $today = today()->toDateString();
 
         // Cari kamar yang sedang aktif terisi/terpesan hari ini
+        // Sertakan 'pending' agar kamar yang baru dipesan (belum bayar) tetap tampil "Dipesan"
         $activeReservations = \Illuminate\Support\Facades\DB::table('reservation_details as d')
             ->join('reservations as r', 'r.id', '=', 'd.reservation_id')
             ->join('guests as g', 'g.id', '=', 'r.guest_id')
-            ->whereIn('r.status', ['confirmed', 'checked_in'])
+            ->whereIn('r.status', ['pending', 'confirmed', 'checked_in'])
             ->where('r.check_in', '<=', $today)
             ->where('r.check_out', '>', $today)
             ->select('d.room_id', 'r.id as reservation_id', 'r.code', 'r.status as res_status', 'g.full_name as guest_name')
@@ -37,8 +38,10 @@ class AdminRoomController extends Controller
 
         if ($request->filled('status')) {
             if ($request->status === 'occupied') {
+                // Terisi = kamar yang ada di reservasi aktif hari ini (pending/confirmed/checked_in)
                 $q->whereIn('id', $bookedRoomIds);
             } elseif ($request->status === 'available') {
+                // Tersedia = status available DAN tidak ada reservasi aktif hari ini
                 $q->where('status', 'available')->whereNotIn('id', $bookedRoomIds);
             } else {
                 $q->where('status', $request->status);

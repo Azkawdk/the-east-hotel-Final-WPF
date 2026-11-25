@@ -65,9 +65,16 @@
               @elseif($room->status === 'out_of_service')
                 <span class="badge bg-secondary badge-status">Tidak Aktif</span>
               @elseif($activeRes)
-                <span class="badge bg-danger badge-status">Penuh</span>
+                @if($activeRes->res_status === 'checked_in')
+                  <span class="badge bg-danger badge-status">🏠 Check-in</span>
+                @elseif($activeRes->res_status === 'confirmed')
+                  <span class="badge bg-danger badge-status">Penuh</span>
+                @else
+                  <span class="badge badge-status" style="background:#f97316;">Dipesan</span>
+                @endif
                 <a href="{{ route('admin.reservations.show', $activeRes->reservation_id) }}" class="d-block text-muted text-decoration-none mt-1" style="font-size:.72rem" title="Lihat Reservasi">
-                  <i class="bi bi-person-fill text-primary"></i> {{ $activeRes->guest_name }} ({{ $activeRes->code }})
+                  <i class="bi bi-person-fill text-primary"></i> {{ $activeRes->guest_name }}
+                  <code class="text-muted">{{ $activeRes->code }}</code>
                 </a>
               @else
                 <span class="badge bg-success badge-status">Tersedia</span>

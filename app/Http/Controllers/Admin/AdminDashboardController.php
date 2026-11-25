@@ -14,20 +14,24 @@ class AdminDashboardController extends Controller
     {
         $today = today()->toDateString();
 
-        $occupied = ReservationDetail::whereHas('reservation', fn ($q) => $q
-            ->whereIn('status', ['confirmed', 'checked_in'])
-            ->where('check_in', '<=', $today)->where('check_out', '>', $today))->count();
+        // Hitung kamar yang terisi hari ini (pending + confirmed + checked_in)
+        $occupiedRoomIds = ReservationDetail::whereHas('reservation', fn ($q) => $q
+            ->whereIn('status', ['pending', 'confirmed', 'checked_in'])
+            ->where('check_in', '<=', $today)->where('check_out', '>', $today))
+            ->pluck('room_id')
+            ->unique()
+            ->count();
 
-        $operational = Room::where('status', 'available')->count();
+        $totalOperational = Room::where('status', 'available')->count();
 
         $stats = [
             'total_reservations'    => Reservation::count(),
             'pending_reservations'  => Reservation::where('status', 'pending')->count(),
             'checkins_today'        => Reservation::whereIn('status', ['confirmed', 'pending'])->where('check_in', $today)->count(),
             'checkouts_today'       => Reservation::where('status', 'checked_in')->where('check_out', $today)->count(),
-            'rooms_operational'     => $operational,
-            'rooms_occupied_today'  => $occupied,
-            'rooms_available_today' => max(0, $operational - $occupied),
+            'rooms_operational'     => $totalOperational,
+            'rooms_occupied_today'  => $occupiedRoomIds,
+            'rooms_available_today' => max(0, $totalOperational - $occupiedRoomIds),
             'revenue_this_month'    => (float) Payment::where('status', 'paid')
                 ->whereBetween('paid_at', [now()->startOfMonth(), now()->endOfMonth()])->sum('amount'),
             'payments_pending'      => Payment::where('status', 'pending')->count(),
